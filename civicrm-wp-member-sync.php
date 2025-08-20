@@ -113,6 +113,15 @@ class Civi_WP_Member_Sync {
 	public $buddypress;
 
 	/**
+	 * CiviCRM API Wrapper object;
+	 *
+	 * @since
+	 * @access public
+	 * @var Civi_WP_Member_Sync_CiviCRMAPI
+	 */
+	public $civicrmapi;
+
+	/**
 	 * Initialise this object.
 	 *
 	 * @since 0.1
@@ -134,6 +143,7 @@ class Civi_WP_Member_Sync {
 	public function include_files() {
 
 		// Load our class files.
+		require CIVI_WP_MEMBER_SYNC_PLUGIN_PATH . 'includes/civi-wp-ms-civicrmapi.php';
 		require CIVI_WP_MEMBER_SYNC_PLUGIN_PATH . 'includes/civi-wp-ms-users.php';
 		require CIVI_WP_MEMBER_SYNC_PLUGIN_PATH . 'includes/civi-wp-ms-schedule.php';
 		require CIVI_WP_MEMBER_SYNC_PLUGIN_PATH . 'includes/civi-wp-ms-admin.php';
@@ -151,6 +161,7 @@ class Civi_WP_Member_Sync {
 	public function setup_objects() {
 
 		// Instantiate our objects.
+		$this->civicrmapi = new Civi_WP_Member_Sync_CiviCRMAPI( $this );
 		$this->users      = new Civi_WP_Member_Sync_Users( $this );
 		$this->schedule   = new Civi_WP_Member_Sync_Schedule( $this );
 		$this->admin      = new Civi_WP_Member_Sync_Admin( $this );
