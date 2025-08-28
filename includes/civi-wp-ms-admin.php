@@ -151,6 +151,15 @@ class Civi_WP_Member_Sync_Admin {
 	public $urls;
 
 	/**
+	 * CiviCRM connection profiles.
+	 *
+	 * @since 0.6.5
+	 * @access public
+	 * @var \Civi_WP_Member_Sync_CiviCRMAPI
+	 */
+	public $civicrmapi;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 0.1
@@ -294,6 +303,9 @@ class Civi_WP_Member_Sync_Admin {
 		// Include CiviCRM Admin Utilities compatibility class.
 		include CIVI_WP_MEMBER_SYNC_PLUGIN_PATH . 'includes/civi-wp-ms-admin-cau.php';
 
+		// Include CiviCRM API wrapper.
+		require_once CIVI_WP_MEMBER_SYNC_PLUGIN_PATH . 'includes/civi-wp-ms-civicrmapi.php';
+
 	}
 
 	/**
@@ -305,6 +317,9 @@ class Civi_WP_Member_Sync_Admin {
 
 		// Instantiate CiviCRM Admin Utilities compatibility object.
 		$this->cau = new Civi_WP_Member_Sync_Admin_CAU( $this );
+
+		// Instantiate CiviCRM API wrapper class.
+		$this->civicrmapi = new Civi_WP_Member_Sync_CiviCRMAPI( $this );
 
 	}
 
@@ -443,8 +458,11 @@ class Civi_WP_Member_Sync_Admin {
 			return false;
 		}
 
+		error_log( 'profiles: ' . print_r($this->plugin->civicrmapi->get_profiles(), true ) );
+		error_log( 'connection: ' . print_r($this->setting_get('connection'), true ) );
+
 		// Multisite?
-		if ( $this->is_network_activated() ) {
+		if ( $this->is_network_activated() || (empty($this->plugin->civicrmapi->get_profiles()) || ('_local_civi_' !== (string) $this->setting_get('connection'))) ) {
 
 			// Add settings page to the Network Settings menu.
 			$this->parent_page = add_submenu_page(
@@ -1034,6 +1052,12 @@ class Civi_WP_Member_Sync_Admin {
 			$updated = trim( wp_unslash( $updated_raw ) );
 		}
 
+		// Get all connection profiles for the API wrapper.
+		$profiles = $this->civicrmapi->get_profiles();
+
+		// Get Settings page connection.
+		$connection = (string) $this->setting_get( 'connection' );
+
 		// Include template file.
 		include CIVI_WP_MEMBER_SYNC_PLUGIN_PATH . 'assets/templates/settings.php';
 
@@ -1566,6 +1590,10 @@ class Civi_WP_Member_Sync_Admin {
 		// Sync only the "Individual" Contact Type by default.
 		$settings['types'] = 1;
 
+		// Set the default CiviCRM connection to empty to make sure we only have a value
+		// if there is some connection set up to CiviCRM.
+		$settings['connection'] = '';
+
 		/**
 		 * Allows the plugin settings to be filtered.
 		 *
@@ -1663,6 +1691,14 @@ class Civi_WP_Member_Sync_Admin {
 			$settings_types = (int) wp_unslash( $settings_types_raw );
 		}
 		$this->setting_set( 'types', ( $settings_types ? 1 : 0 ) );
+
+		// CiviCRM Wrapper connection.
+		$settings_connection = '';
+		$settings_connection_raw = filter_input( INPUT_POST, 'civi_wp_member_sync_settings_connection' );
+		if ( ! empty( $settings_connection_raw ) ) {
+			$settings_connection = trim( wp_unslash( $settings_connection_raw ) );
+		}
+		$this->setting_set( 'connection', $settings_connection );
 
 		// Save settings.
 		$this->settings_save();

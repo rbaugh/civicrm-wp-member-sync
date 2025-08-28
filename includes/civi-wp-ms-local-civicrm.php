@@ -3,6 +3,12 @@
 // All functions are Wordpress-specific.
 defined( 'ABSPATH' ) or die( 'No direct access' );
 
+/**
+ * This class creates a wrapper function to handle passing API calls to a locally installed
+ * instance of CiviCRM. It calls the correct API based on the version passed into it.
+ *
+ * It also has a function to return a profile if CiviCRM is installed and enabled.
+ */
 class Civi_WP_Member_Sync_Local_CiviCRM {
 
 	/**
@@ -21,13 +27,13 @@ class Civi_WP_Member_Sync_Local_CiviCRM {
 	public static function api( $profile, $entity, $action, $params, $options = [], $api_version = '3' ) {
 		$contract_errors = [];
 		if ( empty( $entity ) ) {
-			$contract_errors[] = sprintf( __( "'%s' is required" ), '$entity' );
+			$contract_errors[] = sprintf( __( "'%s' is required", 'civicrm-wp-member-sync' ), '$entity' );
 		}
 		if ( empty( $action ) ) {
-			$contract_errors[] = sprintf( __( "'%s' is required" ), '$action' );
+			$contract_errors[] = sprintf( __( "'%s' is required", 'civicrm-wp-member-sync' ), '$action' );
 		}
 		if ( ! is_array( $params ) ) {
-			$contract_errors = sprintf( __( "'%s' must be an array" ), '$params' );
+			$contract_errors = sprintf( __( "'%s' must be an array", 'civicrm-wp-member-sync' ), '$params' );
 		}
 
 		if(!empty($contract_errors)){
@@ -96,10 +102,12 @@ class Civi_WP_Member_Sync_Local_CiviCRM {
 	 * @return array
 	 */
 	public static function loadProfile( $profiles ) {
-		if ( function_exists( 'civi_wp' ) ) {
+		if ( function_exists( 'civi_wp' ) && civi_wp()->initialize() ) {
 			$profiles['_local_civi_'] = [
 				'title'    => __( 'Local CiviCRM' ),
 				'function' => [ 'Civi_WP_Member_Sync_Local_CiviCRM', 'api' ],
+				'connector' => 'local',
+				'validated' => true,
 			];
 		}
 

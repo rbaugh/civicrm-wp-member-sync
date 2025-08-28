@@ -490,9 +490,8 @@ class Civi_WP_Member_Sync_Users {
 	public function wp_user_get_by_civi_id( $contact_id ) {
 
 		// Kick out if no CiviCRM.
-		$civicrm_installation = $this->plugin->civicrmapi->check_civicrm_installation();
-		if ( $civicrm_installation['is_error'] ) {
-			return false;
+		if ( $this->plugin->civicrmapi->check_civicrm_installation() ) {
+			return null;
 		}
 
 		$params = [
@@ -518,14 +517,14 @@ class Civi_WP_Member_Sync_Users {
 				'backtrace' => $trace,
 			];
 			$this->plugin->log_error( $log );
-			return false;
+			return null;
 		}
 
 		$match = array_shift($result);
 		$user_id = $match['uf_id'];
 
 		if ( empty( $user_id ) ) {
-			return false;
+			return null;
 		}
 
 		// Get User object.
@@ -547,8 +546,7 @@ class Civi_WP_Member_Sync_Users {
 	public function civi_contact_id_get( $user ) {
 
 		// Kick out if no CiviCRM.
-		$civicrm_installation = $this->plugin->civicrmapi->check_civicrm_installation();
-		if ( $civicrm_installation['is_error'] ) {
+		if ( $this->plugin->civicrmapi->check_civicrm_installation() ) {
 			return false;
 		}
 
@@ -596,8 +594,7 @@ class Civi_WP_Member_Sync_Users {
 	public function civi_contact_id_get_by_user_id( $user_id ) {
 
 		// Kick out if no CiviCRM.
-		$civicrm_installation = $this->plugin->civicrmapi->check_civicrm_installation();
-		if ( $civicrm_installation['is_error'] ) {
+		if ( $this->plugin->civicrmapi->check_civicrm_installation() ) {
 			return false;
 		}
 
@@ -631,8 +628,7 @@ class Civi_WP_Member_Sync_Users {
 	public function civi_get_contact_by_contact_id( $contact_id ) {
 
 		// Kick out if no CiviCRM.
-		$civicrm_installation = $this->plugin->civicrmapi->check_civicrm_installation();
-		if ( $civicrm_installation['is_error'] ) {
+		if ( $this->plugin->civicrmapi->check_civicrm_installation() ) {
 			return false;
 		}
 
@@ -647,7 +643,7 @@ class Civi_WP_Member_Sync_Users {
 		];
 
 		// Call CiviCRM API.
-		$result = $this->plugin->civicrmapi->api_wrapper( null, 'Contact', 'get', $params );
+		$result = $this->plugin->civicrmapi->api_wrapper(  'Contact', 'get', $params );
 
 		// Log and bail on failure.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
@@ -922,8 +918,7 @@ class Civi_WP_Member_Sync_Users {
 	public function ufmatch_create( $contact_id, $user_id, $username, $domain_id = '' ) {
 
 		// Kick out if no CiviCRM.
-		$civicrm_installation = $this->plugin->civicrmapi->check_civicrm_installation();
-		if ( $civicrm_installation['is_error'] ) {
+		if ( $this->plugin->civicrmapi->check_civicrm_installation() ) {
 			return false;
 		}
 
@@ -948,12 +943,12 @@ class Civi_WP_Member_Sync_Users {
 				'limit' => 1,
 				'checkPermissions' => FALSE,
 			];
-			$domain = $this->plugin->civicrmapi->api_wrapper( null, 'Domain', 'get', $domain_params );
+			$domain = $this->plugin->civicrmapi->api_wrapper( 'Domain', 'get', $domain_params );
 			$params['domain_id'] = $domain[0]['id'];
 		}
 
 		// Create record via API.
-		$result = $this->plugin->civicrmapi->api_wrapper( null, 'UFMatch', 'create', $params );
+		$result = $this->plugin->civicrmapi->api_wrapper( 'UFMatch', 'create', $params );
 
 		// Log and bail on failure.
 		if ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) {
@@ -976,7 +971,7 @@ class Civi_WP_Member_Sync_Users {
 
 	public function ufmatch_get($params) {
 
-		$result = $this->plugin->civicrmapi->api_wrapper( null, 'UFMatch', 'get', $params, [], '4' );
+		$result = $this->plugin->civicrmapi->api_wrapper(  'UFMatch', 'get', $params, [], '4' );
 		if ( empty($result) || ( ! empty( $result['is_error'] ) && 1 === (int) $result['is_error'] ) ) {
 			$e     = new \Exception();
 			$trace = $e->getTraceAsString();

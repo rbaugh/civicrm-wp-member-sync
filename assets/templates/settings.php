@@ -215,12 +215,52 @@ defined( 'ABSPATH' ) || exit;
 
 			<tr>
 				<th scope="row">
-					<?php esc_html_e( 'Synced Contact Types', 'civicrm-wp-member-sync' ); ?>
+					<?php esc_html_e( 'Synced Contact Type', 'civicrm-wp-member-sync' ); ?>
 				</th>
 				<td>
 					<input type="checkbox" class="settings-checkbox" name="civi_wp_member_sync_settings_types" id="civi_wp_member_sync_settings_types" value="1"<?php checked( 1, $types ); ?> />
 					<label class="civi_wp_member_sync_settings_label" for="civi_wp_member_sync_settings_types"><?php esc_html_e( 'Synchronize Individuals only.', 'civicrm-wp-member-sync' ); ?></label>
 					<p class="description"><?php esc_html_e( 'In versions of CiviCRM Member Sync prior to 0.3.5, all CiviCRM Memberships were synchronized to WordPress Users. This meant that Organisations and Households also had corresponding WordPress Users. If you want to restrict syncing to Individuals only, then check the box below.', 'civicrm-wp-member-sync' ); ?></p>
+				</td>
+			</tr>
+
+		</table>
+
+		<hr />
+
+		<h3><?php esc_html_e( 'Connection Settings', 'civicrm-wp-member-sync' ); ?></h3>
+
+		<p><?php
+			echo sprintf(
+				esc_html__( 'Select the method of connection with CiviCRM. Normally this is "Local CiviCRM" but with %1$sWordpress Connector to CiviCRM with CiviMcRestFace%2$s, you can connect to a remote CiviCRM. When %1$sWordpress Connector to CiviCRM with CiviMcRestFace%2$s is installed, you can setup up and configure a remote profile to use as a connection for CiviCRM Member Sync.', 'civicrm-wp-member-sync' ),
+				'<a href="https://github.com/CiviMRF/civimcrestface-wordpress">',
+				'</a>'
+			);
+		?></p>
+
+		<table class="form-table">
+
+			<tr>
+				<th scope="row">
+					<label class="civi_wp_member_sync_settings_label" for="civi_wp_member_sync_settings_connection"><?php esc_html_e( 'CiviCRM Connection', 'civicrm-wp-member-sync' ); ?></label>
+				</th>
+				<td>
+					<?php if ( !empty($profiles) ) : ?>
+					<select class="settings-select" name="civi_wp_member_sync_settings_connection" id="civi_wp_member_sync_settings_connection">
+						<?php foreach ( $profiles as $key => $value ) : ?>
+							<option value="<?php echo esc_attr( $key ); ?>"<?php selected( $connection, $key ); ?>><?php echo esc_html( $value['title'] ); ?></option>
+						<?php endforeach; ?>
+					</select>
+					<?php else: ?>
+						<p><?php
+							echo sprintf(
+								esc_html__( 'CiviCRM doesn\'t seem to be installed. Please install %$1sCiviCRM%$3s or install and configure a profile using %2$sWordpress Connector to CiviCRM with CiviMcRestFace%3$s.', 'civicrm-wp-member-sync' ),
+								'<a href="https://civicrm.org/download" target="_blank">',
+								'<a href="https://github.com/CiviMRF/civimcrestface-wordpress" target="_blank">',
+								'</a>'
+							);
+						?></p>
+					<?php endif; ?>
 				</td>
 			</tr>
 
